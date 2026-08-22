@@ -1,0 +1,761 @@
+{
+  "info": {
+    "_postman_id": "10c6b947-b67c-4500-a872-1c74c1f0f319",
+    "name": "Cart Module - Mock",
+    "description": "Cart-only collection used to generate a Postman Mock Server. Contains the 5 Cart endpoints (Get All, Add, Get By Id, Update, Delete) with saved request/response examples for positive and negative cases. All values are driven by environment variables ({{baseUrl}}, {{cartId}}, {{userId}}, {{quantity}}, {{token}}) \u2014 nothing is hardcoded. Pair with the 'Cart - Mock' environment (baseUrl = your generated mock server URL) or the 'Cart - Live' environment (baseUrl = https://fakestoreapi.com) to switch targets without editing any request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "a4af8027-b6eb-4b09-b5b5-cd07fdc2f644",
+        "type": "text/javascript",
+        "exec": [
+          "// Collection-level pre-request script (runs before EVERY request in this collection)",
+          "// Used only for lightweight logging/debugging \u2014 not for computing test data.",
+          "console.log('Request started at: ' + new Date().toISOString());",
+          "console.log('Target baseUrl: ' + pm.environment.get('baseUrl'));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Get All Carts",
+      "id": "4bb8d3eb-488e-45fc-acc1-208146831df5",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "5cfc4f97-c1cf-46db-a2e1-74b6863cce2f",
+            "type": "text/javascript",
+            "exec": [
+              "// Status code check",
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Response time check",
+              "pm.test('Response time is below 2000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "// Response is valid JSON",
+              "pm.test('Response is valid JSON', function () {",
+              "    pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text",
+            "disabled": true,
+            "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/carts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts"
+          ]
+        },
+        "description": "Retrieve all carts. Mocked \u2014 served from the saved 200 example below."
+      },
+      "response": [
+        {
+          "id": "e90b9480-1f1a-40bf-99b8-5b5d11e43da7",
+          "name": "200 - Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"products\": [\n      {\n        \"id\": 1,\n        \"title\": \"Sample Product\",\n        \"price\": 29.99,\n        \"description\": \"Sample desc\",\n        \"category\": \"electronics\",\n        \"image\": \"https://example.com/img.jpg\"\n      }\n    ]\n  },\n  {\n    \"id\": 2,\n    \"userId\": 2,\n    \"products\": []\n  }\n]"
+        }
+      ]
+    },
+    {
+      "name": "Add Cart",
+      "id": "5e3b455b-7269-45a6-8df3-deea31d94561",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "f2fce076-ce6f-42c9-b2ca-6fcf1b4fce9b",
+            "type": "text/javascript",
+            "exec": [
+              "// Status code check",
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "// Response time check",
+              "pm.test('Response time is below 2000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "// Response is valid JSON",
+              "pm.test('Response is valid JSON', function () {",
+              "    pm.response.to.be.json;",
+              "});",
+              "",
+              "// Save the newly created cart id for chaining into Get/Update/Delete requests",
+              "if (pm.response.code === 201) {",
+              "    const res = pm.response.json();",
+              "    if (res.id) {",
+              "        pm.environment.set('cartId', res.id);",
+              "        console.log('Saved cartId =', res.id);",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text",
+            "disabled": true,
+            "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/carts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": {{userId}},\n  \"products\": [\n    {\n      \"id\": 1,\n      \"quantity\": {{quantity}}\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Create a new cart. userId and quantity come from environment variables / data file \u2014 nothing hardcoded."
+      },
+      "response": [
+        {
+          "id": "1414c156-d283-4fe7-9dd6-26f146ee9c87",
+          "name": "201 - Created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"products\": [\n    {\n      \"id\": 1,\n      \"quantity\": {{quantity}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"id\": 21,\n  \"userId\": 1,\n  \"products\": [\n    {\n      \"id\": 1,\n      \"title\": \"Sample Product\",\n      \"price\": 29.99,\n      \"description\": \"Sample desc\",\n      \"category\": \"electronics\",\n      \"image\": \"https://example.com/img.jpg\"\n    }\n  ]\n}"
+        },
+        {
+          "id": "775c7c2e-d8f8-443c-b26f-82f813003962",
+          "name": "400 - Bad Request",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"products\": [\n    {\n      \"id\": 1,\n      \"quantity\": {{quantity}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"userId is required\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Cart By Id",
+      "id": "ba6cee5c-6e16-4ddb-8950-c64a013d7b6f",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "a750322f-7acc-4864-af73-dfc365f2fe73",
+            "type": "text/javascript",
+            "exec": [
+              "// Status code check",
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Response time check",
+              "pm.test('Response time is below 2000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "// Response is valid JSON",
+              "pm.test('Response is valid JSON', function () {",
+              "    pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text",
+            "disabled": true,
+            "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/carts/{{cartId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        },
+        "description": "Retrieve a single cart by id. {{cartId}} is set dynamically (from Add Cart response or environment) \u2014 never hardcoded."
+      },
+      "response": [
+        {
+          "id": "f4356496-6512-4181-86b3-792f5d589874",
+          "name": "200 - Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"id\": 1,\n  \"userId\": 1,\n  \"products\": [\n    {\n      \"id\": 1,\n      \"title\": \"Sample Product\",\n      \"price\": 29.99,\n      \"description\": \"Sample desc\",\n      \"category\": \"electronics\",\n      \"image\": \"https://example.com/img.jpg\"\n    }\n  ]\n}"
+        },
+        {
+          "id": "b058732d-2364-405d-9bc2-0c5dad6bf61f",
+          "name": "400 - Not Found",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Cart not found\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Update Cart",
+      "id": "09ec7336-0bff-4ff5-b088-e52d3f065528",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "f6fcffd7-e4fc-47f1-bcd0-10d83fca9694",
+            "type": "text/javascript",
+            "exec": [
+              "// Status code check",
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Response time check",
+              "pm.test('Response time is below 2000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "// Response is valid JSON",
+              "pm.test('Response is valid JSON', function () {",
+              "    pm.response.to.be.json;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text",
+            "disabled": true,
+            "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/carts/{{cartId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": {{userId}},\n  \"products\": [\n    {\n      \"id\": 2,\n      \"quantity\": {{quantity}}\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Update an existing cart identified by {{cartId}}. Body values come from environment/data file."
+      },
+      "response": [
+        {
+          "id": "ac16add1-fca7-490d-a5fd-7ebd82bf08a4",
+          "name": "200 - Updated",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"products\": [\n    {\n      \"id\": 2,\n      \"quantity\": {{quantity}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"id\": 1,\n  \"userId\": 1,\n  \"products\": [\n    {\n      \"id\": 2,\n      \"title\": \"Updated Product\",\n      \"price\": 45.0,\n      \"description\": \"Updated desc\",\n      \"category\": \"clothing\",\n      \"image\": \"https://example.com/img2.jpg\"\n    }\n  ]\n}"
+        },
+        {
+          "id": "05eac968-b0ae-4489-8b8e-a0fcbe13b376",
+          "name": "400 - Bad Request",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"products\": [\n    {\n      \"id\": 2,\n      \"quantity\": {{quantity}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Invalid cart id\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Delete Cart",
+      "id": "3c3426d9-3443-49b1-a973-09f0f3cc51ee",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "8c340416-eea8-4eb3-b9e3-36974f1e7746",
+            "type": "text/javascript",
+            "exec": [
+              "// Status code check",
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Response time check",
+              "pm.test('Response time is below 2000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+              "});",
+              "",
+              "// Response is valid JSON",
+              "pm.test('Response is valid JSON', function () {",
+              "    pm.response.to.be.json;",
+              "});",
+              "",
+              "// Clear cartId after deletion so it can't be reused by mistake in later runs",
+              "if (pm.response.code === 200) {",
+              "    pm.environment.unset('cartId');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text",
+            "disabled": true,
+            "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/carts/{{cartId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "{{cartId}}"
+          ]
+        },
+        "description": "Delete a cart identified by {{cartId}}."
+      },
+      "response": [
+        {
+          "id": "64958a9a-033a-4257-839d-f72e11802fcc",
+          "name": "200 - Deleted",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"id\": 1,\n  \"userId\": 1,\n  \"products\": []\n}"
+        },
+        {
+          "id": "bbb951a9-d4c7-4bd1-9319-75531ea27f46",
+          "name": "400 - Not Found",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text",
+                "disabled": true,
+                "description": "Optional. Enable if your endpoint requires auth. Value pulled from {{token}} env var \u2014 never hardcode a token."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carts/{{cartId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                "{{cartId}}"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Cart not found\"\n}"
+        }
+      ]
+    }
+  ]
+}
